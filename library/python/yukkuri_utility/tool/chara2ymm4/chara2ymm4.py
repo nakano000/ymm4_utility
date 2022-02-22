@@ -424,6 +424,28 @@ class MainWindow(QMainWindow):
                         ss[0] += 'オフセット-15'
                         dst_file = dst_part_dir.joinpath('.'.join(ss))
                         offset_im.save(dst_file)
+
+        # 透明画像を作る
+        self.add2log('処理中(変換,透明素材素材)')
+        for d in p.pipe(
+                dst_dir.iterdir(),
+                p.filter(p.call.is_dir())
+        ):
+            file_list = p.pipe(
+                d.iterdir(),
+                p.filter(p.call.is_file()),
+                p.filter(lambda x: x.name.endswith('.png')),
+                p.map(str),
+                sorted,
+                p.map(Path),
+                list,
+            )
+            if len(file_list) > 0:
+                with Image.open(file_list[0]) as im:
+                    space_image = Image.new('RGBA', im.size, (0, 0, 0, 0))
+                    dst_file = d.joinpath('透明.png')
+                    space_image.save(dst_file)
+
         self.add2log('')  # new line
 
         # end
