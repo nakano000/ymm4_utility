@@ -1,0 +1,4 @@
+{
+  "program": "bin\\python-3.10.2-embed-amd64\\pythonw.exe",
+  "arg": "bin\\chara2ymm4.py"
+}

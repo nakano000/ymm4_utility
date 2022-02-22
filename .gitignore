@@ -127,3 +127,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+.idea/
+/bin/python-3.10.2-embed-amd64/
+/config/
