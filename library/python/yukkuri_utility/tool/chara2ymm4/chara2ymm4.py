@@ -32,7 +32,7 @@ from yukkuri_utility.gui import (
 from yukkuri_utility.tool.chara2ymm4.chara2ymm4_ui import Ui_MainWindow
 
 APP_NAME = 'キャラ素材を変換する。'
-__version__ = '0.2.1'
+__version__ = '1.0.0'
 
 
 @dataclasses.dataclass
