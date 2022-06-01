@@ -1,6 +1,7 @@
 import dataclasses
 import shutil
 import sys
+import time
 
 from functools import partial
 from pathlib import Path
@@ -22,6 +23,7 @@ from PySide2.QtGui import (
 from yukkuri_utility.core import (
     config,
     pipe as p,
+    realesrgan,
 )
 from yukkuri_utility.gui import (
     appearance,
@@ -37,6 +39,7 @@ __version__ = '0.2.1'
 class ConfigData(config.Data):
     src_dir: str = ''
     dst_dir: str = ''
+    use_scale: bool = False
 
 
 OTHER = '他'
@@ -201,11 +204,13 @@ class MainWindow(QMainWindow):
     def set_data(self, c: ConfigData):
         self.ui.srcLineEdit.setText(c.src_dir)
         self.ui.dstLineEdit.setText(c.dst_dir)
+        self.ui.scaleCheckBox.setChecked(c.use_scale)
 
     def get_data(self) -> ConfigData:
         c = ConfigData()
         c.src_dir = self.ui.srcLineEdit.text()
         c.dst_dir = self.ui.dstLineEdit.text()
+        c.use_scale = self.ui.scaleCheckBox.isChecked()
 
         return c
 
@@ -267,6 +272,7 @@ class MainWindow(QMainWindow):
         self.ui.logTextEdit.clear()
 
         data = self.get_data()
+        use_scale = data.use_scale
 
         # src directory check
         src_text = data.src_dir.strip()
@@ -291,6 +297,67 @@ class MainWindow(QMainWindow):
         self.add2log('')  # new line
 
         # 処理開始
+        start = time.time()
+        sr_dir = dst_dir.joinpath('_tmp')
+        if use_scale:
+            self.add2log('処理中(拡大)')
+
+            for d in p.pipe(
+                    src_dir.iterdir(),
+                    p.filter(p.call.is_dir()),
+            ):
+                self.add2log('処理中(拡大,%s)' % d.name)
+                tmp_dir = sr_dir.joinpath(d.name)
+                tmp_dir.mkdir(parents=True, exist_ok=True)
+                realesrgan.conv(d, tmp_dir)  # メイン処理
+
+                # アルファが綺麗じゃないので、グレー画像としてアルファを拡大
+                tmp_src = tmp_dir.joinpath('_tmp_src')
+                tmp_src.mkdir(parents=True, exist_ok=True)
+                tmp_dst = tmp_dir.joinpath('_tmp_dst')
+                tmp_dst.mkdir(parents=True, exist_ok=True)
+                for f in p.pipe(
+                        d.iterdir(),
+                        p.filter(p.call.is_file()),
+                        p.filter(lambda x: x.name.endswith('.png')),
+                        p.map(str),
+                        sorted,
+                        p.map(Path),
+                ):
+                    f: Path
+                    base_image_path = tmp_dir.joinpath(f.name)
+
+                    base_image = Image.open(base_image_path)
+                    src_image = Image.open(f)
+                    if src_image.mode == 'RGBA':
+                        _, _, _, src_alpha_image = src_image.split()
+                        tmp_src_file = tmp_src.joinpath(f.name)
+                        tmp_dst_file = tmp_dst.joinpath(f.name)
+                        src_alpha_image.save(tmp_src_file)
+                        realesrgan.conv(tmp_src_file, tmp_dst_file)
+                        a_ch = Image.open(tmp_dst_file).convert("L")
+                        base_image.putalpha(a_ch)
+                        base_image.save(base_image_path)
+            # 髪が綺麗にならないので、体から作り直し
+            if sr_dir.joinpath('髪').is_dir() and sr_dir.joinpath('体', '00.png'):
+                base_image = Image.open(sr_dir.joinpath('体', '00.png'))
+                d = sr_dir.joinpath('髪')
+                for f in p.pipe(
+                        d.iterdir(),
+                        p.filter(p.call.is_file()),
+                        p.filter(lambda x: x.name.endswith('.png')),
+                        p.map(str),
+                        sorted,
+                        p.map(Path),
+                ):
+                    _, _, _, a_ch = Image.open(f).split()
+                    new_image = base_image.copy()
+                    new_image.putalpha(a_ch)
+                    new_image.save(f)
+
+            src_dir = sr_dir
+            self.add2log('')
+
         self.add2log('処理中(前準備)')
         # dataにパーツ、プレフィックスで整理してfileを入れる
         data = {}
@@ -419,7 +486,10 @@ class MainWindow(QMainWindow):
                         p.filter(lambda x: x.name.endswith('.png')),
                 ):
                     with Image.open(f) as im:
-                        offset_im = ImageChops.offset(im, 0, -15)
+                        offset_size = -10
+                        if use_scale:
+                            offset_size = -40
+                        offset_im = ImageChops.offset(im, 0, offset_size)
                         ss = f.name.split('.')
                         ss[0] += 'オフセット-15'
                         dst_file = dst_part_dir.joinpath('.'.join(ss))
@@ -446,10 +516,15 @@ class MainWindow(QMainWindow):
                     dst_file = d.joinpath('透明.png')
                     space_image.save(dst_file)
 
+        # 後処理
+        if sr_dir.is_dir():
+            shutil.rmtree(sr_dir)
+
         self.add2log('')  # new line
 
         # end
-        self.add2log('Done!')
+        end_time = time.time() - start
+        self.add2log('Done!(%d%s)' % (int(end_time), '秒'))
 
 
 def run() -> None:

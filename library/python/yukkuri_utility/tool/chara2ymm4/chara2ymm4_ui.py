@@ -3,7 +3,7 @@
 # Form implementation generated from reading ui file 'C:\Users\yoshi\PycharmProjects\ymm4_utility\library\python\yukkuri_utility\tool\chara2ymm4\chara2ymm4.ui',
 # licensing of 'C:\Users\yoshi\PycharmProjects\ymm4_utility\library\python\yukkuri_utility\tool\chara2ymm4\chara2ymm4.ui' applies.
 #
-# Created: Mon Feb 21 14:02:30 2022
+# Created: Wed Jun  1 05:22:12 2022
 #      by: pyside2-uic  running on PySide2 5.12.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -13,14 +13,17 @@ from PySide2 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(659, 633)
+        MainWindow.resize(596, 533)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
-        self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.centralwidget)
-        self.verticalLayout_3.setObjectName("verticalLayout_3")
-        self.horizontalLayout_4 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_4.setObjectName("horizontalLayout_4")
+        self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.centralwidget)
+        self.verticalLayout_2.setObjectName("verticalLayout_2")
         self.groupBox = QtWidgets.QGroupBox(self.centralwidget)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Maximum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.groupBox.sizePolicy().hasHeightForWidth())
+        self.groupBox.setSizePolicy(sizePolicy)
         self.groupBox.setObjectName("groupBox")
         self.formLayout = QtWidgets.QFormLayout(self.groupBox)
         self.formLayout.setObjectName("formLayout")
@@ -50,8 +53,14 @@ class Ui_MainWindow(object):
         self.dstToolButton.setObjectName("dstToolButton")
         self.horizontalLayout.addWidget(self.dstToolButton)
         self.formLayout.setLayout(1, QtWidgets.QFormLayout.FieldRole, self.horizontalLayout)
-        self.horizontalLayout_4.addWidget(self.groupBox)
-        self.verticalLayout_3.addLayout(self.horizontalLayout_4)
+        self.label = QtWidgets.QLabel(self.groupBox)
+        self.label.setObjectName("label")
+        self.formLayout.setWidget(2, QtWidgets.QFormLayout.LabelRole, self.label)
+        self.scaleCheckBox = QtWidgets.QCheckBox(self.groupBox)
+        self.scaleCheckBox.setText("")
+        self.scaleCheckBox.setObjectName("scaleCheckBox")
+        self.formLayout.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.scaleCheckBox)
+        self.verticalLayout_2.addWidget(self.groupBox)
         self.groupBox_2 = QtWidgets.QGroupBox(self.centralwidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
@@ -71,7 +80,7 @@ class Ui_MainWindow(object):
         self.logTextEdit.setReadOnly(True)
         self.logTextEdit.setObjectName("logTextEdit")
         self.verticalLayout.addWidget(self.logTextEdit)
-        self.verticalLayout_3.addWidget(self.groupBox_2)
+        self.verticalLayout_2.addWidget(self.groupBox_2)
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
         spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
@@ -84,10 +93,10 @@ class Ui_MainWindow(object):
         self.closeButton.setMinimumSize(QtCore.QSize(100, 40))
         self.closeButton.setObjectName("closeButton")
         self.horizontalLayout_3.addWidget(self.closeButton)
-        self.verticalLayout_3.addLayout(self.horizontalLayout_3)
+        self.verticalLayout_2.addLayout(self.horizontalLayout_3)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 659, 21))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 596, 21))
         self.menubar.setObjectName("menubar")
         self.menuFile = QtWidgets.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
@@ -114,6 +123,7 @@ class Ui_MainWindow(object):
         self.srcToolButton.setText(QtWidgets.QApplication.translate("MainWindow", "...", None, -1))
         self.label_4.setText(QtWidgets.QApplication.translate("MainWindow", "出力先", None, -1))
         self.dstToolButton.setText(QtWidgets.QApplication.translate("MainWindow", "...", None, -1))
+        self.label.setText(QtWidgets.QApplication.translate("MainWindow", "拡大 x4", None, -1))
         self.groupBox_2.setTitle(QtWidgets.QApplication.translate("MainWindow", "ログ", None, -1))
         self.convertButton.setText(QtWidgets.QApplication.translate("MainWindow", "convert", None, -1))
         self.closeButton.setText(QtWidgets.QApplication.translate("MainWindow", "close", None, -1))
